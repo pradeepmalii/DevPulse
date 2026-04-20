@@ -1,3 +1,5 @@
+import SearchBar from './components/searchBar.jsx';
+
 import React from 'react'
 
 function App(){
