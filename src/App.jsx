@@ -15,7 +15,8 @@ function App(){
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
 
           <div className='bg-devpulse-card p-6 rounded-xl border border-slate-800 shadow-xl h-64 flex items-center justify-center'>
-            <span className='text-slate-500 font-medium'>Profile Panel</span>
+             <h2 className="text-xl text-slate-200 font-bold mb-2 w-full text-left">Search Profile</h2>
+            <SearchBar />
           </div>
 
           <div className='bg-devpulse-card p-6 rounded-xl border border-slate-800 shadow-xl h-64 flex items-center justify-center col-span-1 md:col-span-2'>
