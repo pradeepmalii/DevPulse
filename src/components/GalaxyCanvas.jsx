@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-const GalaxyCanvas = ({ profile }) => {
+const GalaxyCanvas = ({ profile, repos = [] }) => {
   // 1. We create a ref to hook into the actual <canvas> DOM element
   const canvasRef = useRef(null);
 
@@ -50,6 +50,35 @@ const GalaxyCanvas = ({ profile }) => {
       ctx.textBaseline = 'middle';   // Vertically center text
       // Note: we place it at centerX, centerY and the alignment takes care of spacing
       ctx.fillText(initials, centerX, centerY);
+
+      // 7. Draw the Repositories (Planets!)
+      if (repos && repos.length > 0) {
+        const orbitRadius = 160; // How far away the planets orbit from the center
+        
+        repos.forEach((repo, index) => {
+          // Calculate where on the 360-degree circle this planet belongs
+          // Math.PI * 2 is a full circle in radians. We divide it equally among all repos.
+          const angle = (index / repos.length) * (Math.PI * 2);
+          
+          // TRIGONOMETRY MAGIC:
+          // X is derived from Cosine, Y is derived from Sine.
+          // We multiply by orbitRadius to push it outward, then add centerX/centerY to move the origin to the middle.
+          const x = centerX + Math.cos(angle) * orbitRadius;
+          const y = centerY + Math.sin(angle) * orbitRadius;
+          
+          // 8. Size by Stars
+          // We use Math.max to guarantee a minimum size of 5 pixels.
+          // Then we scale the stargazers_count down so huge repos don't cover the whole screen.
+          const planetRadius = Math.max(5, repo.stargazers_count / 12);
+          
+          // Draw the planet
+          ctx.beginPath();
+          ctx.arc(x, y, planetRadius, 0, Math.PI * 2);
+          ctx.fillStyle = '#38bdf8'; // Temporary blue color (we'll do language colors next!)
+          ctx.fill();
+          ctx.closePath();
+        });
+      }
     };
 
     // Initialize size and draw
@@ -61,7 +90,7 @@ const GalaxyCanvas = ({ profile }) => {
     // Cleanup listener on unmount
     return () => window.removeEventListener('resize', updateSize);
 
-  }, [profile]); // If the user profile changes (e.g. they search a new user), re-run this drawing effect!
+  }, [profile, repos]); // Re-run if profile OR repos change
 
   return (
     // The parent div acts as a sturdy container for the canvas to fill

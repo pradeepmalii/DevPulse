@@ -32,10 +32,10 @@ function App() {
   // Helper function to render the correct component based on activeTab state
   const renderContent = () => {
     switch (activeTab) {
-      case 'galaxy': return <GalaxyCanvas profile={mockProfile} />;
+      case 'galaxy': return <GalaxyCanvas profile={mockProfile} repos={mockRepos} />;
       case 'pulse': return <PulseViewPlaceholder />;
       case 'collabs': return <CollabsViewPlaceholder />;
-      default: return <GalaxyCanvas profile={mockProfile} />;
+      default: return <GalaxyCanvas profile={mockProfile} repos={mockRepos} />;
     }
   };
 
