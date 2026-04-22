@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 
-const GalaxyCanvas = () => {
+const GalaxyCanvas = ({ profile }) => {
   // 1. We create a ref to hook into the actual <canvas> DOM element
   const canvasRef = useRef(null);
 
@@ -20,18 +20,36 @@ const GalaxyCanvas = () => {
       // Clear the canvas before drawing
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // 5. Draw a single filled circle in the center!
+      // 5. Draw the Developer Node (Center)
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
-      const radius = 25; // Size of our center node
+      const radius = 35; // Size of our center node, slightly larger for text
 
-      // Start drawing a path
+      // Draw the deep circle with a bright border
       ctx.beginPath();
       // arc(x, y, radius, startAngle, endAngle) -> Math.PI * 2 is a full circle
       ctx.arc(centerX, centerY, radius, 0, Math.PI * 2); 
-      ctx.fillStyle = '#a78bfa'; // Using our Tailwind devpulse-glow color
+      ctx.fillStyle = '#1e293b'; // Tailwind devpulse-card (dark)
       ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#a78bfa'; // Tailwind devpulse-glow (purple)
+      ctx.stroke();
       ctx.closePath();
+
+      // 6. Draw avatar initials inside the circle
+      let initials = "NA"; // Default fallback
+      if (profile && profile.name) {
+        // "Ninja Developer" -> ["Ninja", "Developer"] -> "ND"
+        const nameParts = profile.name.split(' ');
+        initials = nameParts.map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      }
+
+      ctx.fillStyle = '#e2e8f0'; // Tailwind slate-200 (light text)
+      ctx.font = 'bold 22px sans-serif';
+      ctx.textAlign = 'center';      // Horizontally center text
+      ctx.textBaseline = 'middle';   // Vertically center text
+      // Note: we place it at centerX, centerY and the alignment takes care of spacing
+      ctx.fillText(initials, centerX, centerY);
     };
 
     // Initialize size and draw
@@ -43,7 +61,7 @@ const GalaxyCanvas = () => {
     // Cleanup listener on unmount
     return () => window.removeEventListener('resize', updateSize);
 
-  }, []); // Empty dependency array: run this setup once on mount
+  }, [profile]); // If the user profile changes (e.g. they search a new user), re-run this drawing effect!
 
   return (
     // The parent div acts as a sturdy container for the canvas to fill
