@@ -1,5 +1,21 @@
 import React, { useRef, useEffect } from 'react';
 
+// Standard GitHub language colors
+const LANGUAGE_COLORS = {
+  JavaScript: '#f1e05a',
+  TypeScript: '#3178c6',
+  HTML: '#e34c26',
+  CSS: '#563d7c',
+  Python: '#3572A5',
+  Go: '#00ADD8',
+  Java: '#b07219',
+  Ruby: '#701516',
+  PHP: '#4F5D95',
+  'C++': '#f34b7d',
+  C: '#555555',
+  Rust: '#dea584'
+};
+
 const GalaxyCanvas = ({ profile, repos = [] }) => {
   // 1. We create a ref to hook into the actual <canvas> DOM element
   const canvasRef = useRef(null);
@@ -74,8 +90,19 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
           // Draw the planet
           ctx.beginPath();
           ctx.arc(x, y, planetRadius, 0, Math.PI * 2);
-          ctx.fillStyle = '#38bdf8'; // Temporary blue color (we'll do language colors next!)
+          
+          // 9. Color by Language
+          // We look up the repo's language in our dictionary. If it doesn't exist, we fallback to slate-400 grey.
+          ctx.fillStyle = LANGUAGE_COLORS[repo.language] || '#94a3b8';
           ctx.fill();
+          
+          // Let's add a tiny subtle glow to the planets to make them pop!
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = ctx.fillStyle;
+          ctx.fill();
+          // Reset shadow so we don't accidentally make other things glow later
+          ctx.shadowBlur = 0; 
+
           ctx.closePath();
         });
       }
