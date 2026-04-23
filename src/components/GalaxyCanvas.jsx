@@ -67,14 +67,40 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
       // Note: we place it at centerX, centerY and the alignment takes care of spacing
       ctx.fillText(initials, centerX, centerY);
 
-      // 7. Draw the Repositories (Planets!)
+      // 7. Draw Orbit Rings
+      const INNER_ORBIT = 130;
+      const OUTER_ORBIT = 230;
+
+      // Helper function to draw a dashed ring
+      const drawRing = (radius) => {
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = '#334155'; // Tailwind slate-700
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 6]); // 4px line, 6px gap
+        ctx.stroke();
+        ctx.closePath();
+        ctx.setLineDash([]); // Reset to solid line so we don't accidentally draw dashed planets
+      };
+
+      drawRing(INNER_ORBIT);
+      drawRing(OUTER_ORBIT);
+
+      // 8. Draw the Repositories (Planets!)
       if (repos && repos.length > 0) {
-        const orbitRadius = 160; // How far away the planets orbit from the center
+        // Find the date 6 months ago
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
         
         repos.forEach((repo, index) => {
           // Calculate where on the 360-degree circle this planet belongs
-          // Math.PI * 2 is a full circle in radians. We divide it equally among all repos.
           const angle = (index / repos.length) * (Math.PI * 2);
+          
+          // Determine which ring this planet belongs on!
+          // If it was pushed recently, it orbits closer to the developer.
+          const repoDate = new Date(repo.pushed_at);
+          const isRecent = repoDate > sixMonthsAgo;
+          const orbitRadius = isRecent ? INNER_ORBIT : OUTER_ORBIT;
           
           // TRIGONOMETRY MAGIC:
           // X is derived from Cosine, Y is derived from Sine.
@@ -82,12 +108,10 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
           const x = centerX + Math.cos(angle) * orbitRadius;
           const y = centerY + Math.sin(angle) * orbitRadius;
           
-          // 8. Size by Stars
-          // We use Math.max to guarantee a minimum size of 5 pixels.
-          // Then we scale the stargazers_count down so huge repos don't cover the whole screen.
+          // 9. Size by Stars
           const planetRadius = Math.max(5, repo.stargazers_count / 12);
           
-          // Draw the planet
+          // 10. Draw the planet
           ctx.beginPath();
           ctx.arc(x, y, planetRadius, 0, Math.PI * 2);
           
