@@ -29,6 +29,15 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
     const ctx = canvas.getContext('2d');
     let animationFrameId;
     let time = 0; // This will act as our "clock" that increments every frame
+    
+    // NEW: Track the mouse position relative to the canvas
+    let mouse = { x: -1000, y: -1000 };
+    const handleMouseMove = (event) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = event.clientX - rect.left;
+      mouse.y = event.clientY - rect.top;
+    };
+    canvas.addEventListener('mousemove', handleMouseMove);
 
     // 4. Handle resizing: make the canvas fill its parent container entirely
     const updateSize = () => {
@@ -86,6 +95,9 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
       ctx.fillText(initials, centerX, centerY);
 
       // Step D: Draw the Repositories (Planets!)
+      let hoveredRepo = null; // Track if we are hovering over anything this frame
+      let hoveredPlanetPos = null;
+
       if (repos && repos.length > 0) {
         const sixMonthsAgo = new Date();
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
@@ -110,6 +122,17 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
           
           const planetRadius = Math.max(5, repo.stargazers_count / 12);
           
+          // NEW: Hit Detection using the Pythagorean Theorem
+          const dx = mouse.x - x;
+          const dy = mouse.y - y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          // Add a tiny bit of padding (3px) to make hovering easier
+          if (distance <= planetRadius + 3) {
+            hoveredRepo = repo;
+            hoveredPlanetPos = { x, y, radius: planetRadius };
+          }
+          
           ctx.beginPath();
           ctx.arc(x, y, planetRadius, 0, Math.PI * 2);
           ctx.fillStyle = LANGUAGE_COLORS[repo.language] || '#94a3b8';
@@ -124,7 +147,51 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
         });
       }
 
-      // Step E: Advance time and request the browser to draw the next frame!
+      // Step E: Draw Tooltip and Update Cursor
+      if (hoveredRepo && hoveredPlanetPos) {
+        canvas.style.cursor = 'pointer'; // Turn mouse into a pointing hand
+
+        // Box dimensions
+        const boxWidth = 220;
+        const boxHeight = 70;
+        // Offset it slightly from the planet so the cursor doesn't cover it
+        const boxX = hoveredPlanetPos.x + 15; 
+        const boxY = hoveredPlanetPos.y + 15;
+
+        // Draw Tooltip Background
+        ctx.beginPath();
+        // roundRect(x, y, width, height, borderRadius)
+        ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 8); 
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)'; // devpulse-dark with 90% opacity
+        ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = '#334155'; // slate-700
+        ctx.stroke();
+        ctx.closePath();
+
+        // Draw Tooltip Text
+        ctx.textAlign = 'left';
+        
+        // Repo Name
+        ctx.fillStyle = '#e2e8f0'; // slate-200
+        ctx.font = 'bold 14px sans-serif';
+        ctx.fillText(hoveredRepo.name, boxX + 12, boxY + 22);
+        
+        // Repo Language
+        const lang = hoveredRepo.language || 'Unknown';
+        ctx.fillStyle = LANGUAGE_COLORS[lang] || '#94a3b8';
+        ctx.font = '12px sans-serif';
+        ctx.fillText(lang, boxX + 12, boxY + 42);
+        
+        // Repo Stars
+        ctx.fillStyle = '#94a3b8'; // slate-400
+        ctx.fillText(`⭐ ${hoveredRepo.stargazers_count}`, boxX + 12, boxY + 60);
+
+      } else {
+        canvas.style.cursor = 'default'; // Normal mouse cursor
+      }
+
+      // Step F: Advance time and request the browser to draw the next frame!
       time += 1;
       animationFrameId = window.requestAnimationFrame(render);
     };
@@ -139,6 +206,7 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
     // Cleanup listener and cancel animation loop on unmount
     return () => {
       window.removeEventListener('resize', updateSize);
+      canvas.removeEventListener('mousemove', handleMouseMove);
       window.cancelAnimationFrame(animationFrameId);
     };
 
