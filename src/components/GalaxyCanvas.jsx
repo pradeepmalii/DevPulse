@@ -32,12 +32,29 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
     
     // NEW: Track the mouse position relative to the canvas
     let mouse = { x: -1000, y: -1000 };
+    let hoveredRepo = null; // Elevated to be accessible by the click handler
+    let clickedPlanetId = null; // Track which planet to pulse
+    let pulseTimer = 0; // Countdown for the pulse animation
+
     const handleMouseMove = (event) => {
       const rect = canvas.getBoundingClientRect();
       mouse.x = event.clientX - rect.left;
       mouse.y = event.clientY - rect.top;
     };
     canvas.addEventListener('mousemove', handleMouseMove);
+
+    // NEW: Handle Clicks
+    const handleClick = () => {
+      if (hoveredRepo) {
+        // 1. Open the repository URL in a new browser tab
+        window.open(hoveredRepo.html_url, '_blank', 'noopener,noreferrer');
+        
+        // 2. Trigger the pulse animation
+        clickedPlanetId = hoveredRepo.id;
+        pulseTimer = 20; // The pulse will last for 20 frames
+      }
+    };
+    canvas.addEventListener('click', handleClick);
 
     // 4. Handle resizing: make the canvas fill its parent container entirely
     const updateSize = () => {
@@ -95,7 +112,7 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
       ctx.fillText(initials, centerX, centerY);
 
       // Step D: Draw the Repositories (Planets!)
-      let hoveredRepo = null; // Track if we are hovering over anything this frame
+      hoveredRepo = null; // Reset every frame so we don't get stuck hovering
       let hoveredPlanetPos = null;
 
       if (repos && repos.length > 0) {
@@ -120,7 +137,14 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
           const x = centerX + Math.cos(currentAngle) * orbitRadius;
           const y = centerY + Math.sin(currentAngle) * orbitRadius;
           
-          const planetRadius = Math.max(5, repo.stargazers_count / 12);
+          let planetRadius = Math.max(5, repo.stargazers_count / 12);
+          
+          // NEW: Pulse Animation Math
+          // If this planet was just clicked, temporarily increase its radius based on the timer!
+          if (repo.id === clickedPlanetId && pulseTimer > 0) {
+            // As pulseTimer counts down from 20 to 0, it adds extra padding that shrinks back to normal
+            planetRadius += (pulseTimer / 2);
+          }
           
           // NEW: Hit Detection using the Pythagorean Theorem
           const dx = mouse.x - x;
@@ -193,6 +217,10 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
 
       // Step F: Advance time and request the browser to draw the next frame!
       time += 1;
+      if (pulseTimer > 0) {
+        pulseTimer -= 1; // Decrease the pulse timer every frame
+      }
+      
       animationFrameId = window.requestAnimationFrame(render);
     };
 
@@ -207,6 +235,7 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
     return () => {
       window.removeEventListener('resize', updateSize);
       canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('click', handleClick);
       window.cancelAnimationFrame(animationFrameId);
     };
 
