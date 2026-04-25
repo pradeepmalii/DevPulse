@@ -1,11 +1,12 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-const PulseView = ({ commits }) => {
+const PulseView = ({ commits, repos }) => {
   // 1. Create refs to hook into our container divs
   const barChartRef = useRef(null);
   const heatmapRef = useRef(null);
   const radialChartRef = useRef(null);
+  const pieChartRef = useRef(null);
 
   useEffect(() => {
     // We need data to draw!
@@ -337,6 +338,118 @@ const PulseView = ({ commits }) => {
     return () => tooltip.remove();
   }, []);
 
+  // --- PIE CHART EFFECT (Top Languages Donut) ---
+  useEffect(() => {
+    if (!repos || repos.length === 0) return;
+    
+    const container = d3.select(pieChartRef.current);
+    container.selectAll('*').remove();
+
+    // 1. DATA PREPARATION: Aggregate languages across all repos
+    const langCounts = {};
+    repos.forEach(repo => {
+      if (repo.language) {
+        langCounts[repo.language] = (langCounts[repo.language] || 0) + 1;
+      }
+    });
+    
+    // Convert into an array and sort by highest count
+    const langData = Object.keys(langCounts)
+      .map(key => ({ language: key, count: langCounts[key] }))
+      .sort((a, b) => b.count - a.count);
+
+    // 2. SVG SETUP
+    const width = 400;
+    const height = 400;
+    const margin = 40;
+    const radius = Math.min(width, height) / 2 - margin;
+
+    const svg = container
+      .append('svg')
+      .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('width', '100%')
+      .style('background-color', '#0f172a')
+      .append('g')
+      .attr('transform', `translate(${width / 2},${height / 2})`);
+
+    // Shared color dictionary from our Galaxy View!
+    const LANGUAGE_COLORS = {
+      JavaScript: '#facc15',
+      TypeScript: '#3b82f6',
+      Python: '#38bdf8',
+      Java: '#fb923c',
+      'C++': '#f43f5e',
+      Ruby: '#9f1239',
+      Go: '#0ea5e9',
+      Rust: '#ea580c',
+      HTML: '#e11d48',
+      CSS: '#2563eb'
+    };
+
+    // 3. DRAW THE PIE CHART
+    // d3.pie() computes the start and end angles for each data point based on its value
+    const pie = d3.pie()
+      .value(d => d.count)
+      .sort(null); // Keep our manual sorting
+    const data_ready = pie(langData);
+
+    // The arc generator
+    const arcGenerator = d3.arc()
+      .innerRadius(radius * 0.65) // A large inner radius makes it a Donut chart!
+      .outerRadius(radius)
+      .padAngle(0.03)
+      .cornerRadius(6);
+
+    const tooltip = d3.select('body').append('div')
+      .attr('class', 'absolute bg-slate-800 text-slate-200 p-2 rounded shadow-lg border border-slate-700 text-sm pointer-events-none opacity-0 z-50 transition-opacity');
+
+    // Bind the computed pie data to path elements
+    svg.selectAll('path')
+      .data(data_ready)
+      .join('path')
+      .attr('d', arcGenerator)
+      .attr('fill', d => LANGUAGE_COLORS[d.data.language] || '#94a3b8')
+      .on('mouseover', (event, d) => {
+        // Push the wedge slightly outward on hover for a cool pop effect!
+        d3.select(event.currentTarget)
+          .transition().duration(200)
+          .attr('transform', `scale(1.05)`);
+          
+        tooltip.style('opacity', 1)
+          .html(`<strong style="color:${LANGUAGE_COLORS[d.data.language] || '#94a3b8'}">${d.data.language}</strong><br/>${d.data.count} repositories`);
+      })
+      .on('mousemove', (event) => {
+        tooltip.style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 28) + 'px');
+      })
+      .on('mouseout', (event) => {
+        d3.select(event.currentTarget)
+          .transition().duration(200)
+          .attr('transform', `scale(1)`);
+        tooltip.style('opacity', 0);
+      });
+
+    // 4. ADD CENTER TEXT
+    if (langData.length > 0) {
+      svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('y', -5)
+        .text('Top Lang')
+        .attr('font-size', '14px')
+        .attr('fill', '#64748b')
+        .attr('font-weight', 'bold');
+        
+      svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('y', 25)
+        .text(langData[0].language)
+        .attr('font-size', '22px')
+        .attr('font-weight', 'bold')
+        .attr('fill', LANGUAGE_COLORS[langData[0].language] || '#e2e8f0');
+    }
+
+    return () => tooltip.remove();
+  }, [repos]);
+
   return (
     <div className="w-full flex flex-col gap-10 pb-10">
       {/* Bar Chart Section */}
@@ -367,12 +480,13 @@ const PulseView = ({ commits }) => {
           />
         </div>
         
-        {/* Placeholder for future expansion */}
+        {/* Top Languages Donut Chart Section */}
         <div className="flex flex-col gap-4">
            <h2 className="text-xl font-bold text-slate-200">Top Languages</h2>
-           <div className="w-full h-full shadow-lg rounded-xl overflow-hidden border border-slate-700 bg-[#0f172a] flex items-center justify-center text-slate-500 min-h-[300px]">
-             Pie chart coming in the next step!
-           </div>
+           <div 
+             ref={pieChartRef} 
+             className="w-full shadow-lg rounded-xl overflow-hidden border border-slate-700 bg-[#0f172a] flex items-center justify-center" 
+           />
         </div>
       </div>
 

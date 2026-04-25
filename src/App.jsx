@@ -28,7 +28,7 @@ function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'galaxy': return <GalaxyCanvas profile={mockProfile} repos={mockRepos} />;
-      case 'pulse': return <PulseView commits={mockCommits} />;
+      case 'pulse': return <PulseView commits={mockCommits} repos={mockRepos} />;
       case 'collabs': return <CollabsViewPlaceholder />;
       default: return <GalaxyCanvas profile={mockProfile} repos={mockRepos} />;
     }
