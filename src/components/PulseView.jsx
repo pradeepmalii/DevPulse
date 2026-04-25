@@ -36,7 +36,8 @@ const PulseView = ({ commits }) => {
     // Append the SVG and a <g> (group) element shifted by our margins
     const svg = container
       .append('svg')
-      .attr('viewBox', `0 0 800 300`) // viewBox makes it responsive!
+      .attr('viewBox', `0 0 800 300`) // viewBox coordinates
+      .attr('width', '100%')          // Force it to scale horizontally to fit the card!
       .style('background-color', '#0f172a')
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
@@ -130,15 +131,17 @@ const PulseView = ({ commits }) => {
     const cellSize = 14; // Size of each square
     const cellGap = 3;   // Gap between squares
     
-    // We calculate the exact width based on 52 columns!
-    const width = (52 * (cellSize + cellGap)) + margin.left + margin.right; 
+    // NEW: We calculate the exact width dynamically based on the ACTUAL data length!
+    // If the mock data generated more than 364 days, we must expand the viewBox to fit it!
+    const totalWeeks = Math.ceil(heatmapData.length / 7);
+    const width = (totalWeeks * (cellSize + cellGap)) + margin.left + margin.right; 
     const height = (7 * (cellSize + cellGap)) + margin.top + margin.bottom;
 
     const svg = container
       .append('svg')
-      // Explicitly setting width and height prevents the browser from defaulting to 150px!
-      .attr('width', width)
-      .attr('height', height)
+      // Using viewBox along with width="100%" forces the SVG to scale down gracefully!
+      .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('width', '100%')
       .style('background-color', '#0f172a')
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
@@ -242,7 +245,7 @@ const PulseView = ({ commits }) => {
         <h2 className="text-xl font-bold text-slate-200">52-Week Contribution Grid</h2>
         <div 
           ref={heatmapRef} 
-          className="w-full shadow-lg rounded-xl overflow-hidden border border-slate-700 overflow-x-auto" 
+          className="w-full shadow-lg rounded-xl overflow-hidden border border-slate-700" 
         />
       </div>
     </div>
