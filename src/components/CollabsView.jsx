@@ -52,17 +52,86 @@ const CollabsView = ({ collabs }) => {
       .selectAll('line')
       .data(links)
       .join('line')
-      .attr('stroke-width', d => Math.max(1, d.value || 2)); // Thicker line if they collaborated more
+      .attr('stroke-width', d => Math.max(1, d.value || 2));
 
-    // 5. DRAW NODES (Circles)
+    // --- NEW: DRAG INTERACTIVITY FUNCTIONS ---
+    // These functions allow the user to grab a node and throw it around!
+    const dragStarted = (event, d) => {
+      // Re-heat the simulation so physics resume (alphaTarget > 0)
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x; // "Fix" the node's position to where the mouse grabbed it
+      d.fy = d.y;
+    };
+
+    const dragged = (event, d) => {
+      d.fx = event.x; // Move the fixed position alongside the mouse cursor
+      d.fy = event.y;
+    };
+
+    const dragEnded = (event, d) => {
+      // Let the simulation cool down and restabilize
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null; // Unfix the position so gravity takes over again!
+      d.fy = null;
+    };
+
+    // --- NEW: TOOLTIP ---
+    const tooltip = d3.select('body').append('div')
+      .attr('class', 'absolute bg-slate-800 text-slate-200 p-2 rounded shadow-lg border border-slate-700 text-sm pointer-events-none opacity-0 z-50 transition-opacity');
+
+    // 5. DRAW NODES (Groups containing circles and text)
+    // We change this from just 'circle' to a 'g' so we can attach text labels inside!
     const node = g.append('g')
-      .attr('stroke', '#a78bfa') // purple border
-      .attr('stroke-width', 2)
-      .selectAll('circle')
+      .selectAll('g')
       .data(nodes)
-      .join('circle')
-      .attr('r', 16) // Node size
-      .attr('fill', '#1e293b'); // dark card color
+      .join('g')
+      // Attach our drag event listeners!
+      .call(d3.drag()
+        .on('start', dragStarted)
+        .on('drag', dragged)
+        .on('end', dragEnded)
+      )
+      // Attach tooltip hover events
+      .on('mouseover', (event, d) => {
+        // Highlight the hovered node with a glowing blue border
+        d3.select(event.currentTarget).select('circle')
+          .transition().duration(200)
+          .attr('stroke', '#38bdf8') // glow blue
+          .attr('stroke-width', 4);
+
+        tooltip.style('opacity', 1)
+          .html(`<strong class="text-devpulse-glow">${d.id}</strong><br/><span class="text-slate-400">Collaborator</span>`);
+      })
+      .on('mousemove', (event) => {
+        tooltip.style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 28) + 'px');
+      })
+      .on('mouseout', (event, d) => {
+        // Reset the node styling
+        d3.select(event.currentTarget).select('circle')
+          .transition().duration(200)
+          .attr('stroke', '#a78bfa')
+          .attr('stroke-width', 2);
+        
+        tooltip.style('opacity', 0);
+      });
+
+    // Add the glowing circle background
+    node.append('circle')
+      .attr('r', 16)
+      .attr('fill', '#1e293b') // dark card color
+      .attr('stroke', '#a78bfa') // purple border
+      .attr('stroke-width', 2);
+
+    // Add the developer's initial (First letter of their ID)
+    node.append('text')
+      .text(d => d.id.charAt(0).toUpperCase())
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'middle')
+      .attr('fill', '#e2e8f0')
+      .attr('font-size', '12px')
+      .attr('font-weight', 'bold')
+      // CRITICAL: Prevent text from blocking mouse/drag events!
+      .attr('pointer-events', 'none');
 
     // 6. TICK FUNCTION (The Animation Loop)
     // The force simulation calculates physics at 60 FPS. 
@@ -74,14 +143,15 @@ const CollabsView = ({ collabs }) => {
         .attr('x2', d => d.target.x)
         .attr('y2', d => d.target.y);
 
+      // Since 'node' is now a <g> group, we update its transform instead of cx/cy!
       node
-        .attr('cx', d => d.x)
-        .attr('cy', d => d.y);
+        .attr('transform', d => `translate(${d.x},${d.y})`);
     });
 
-    // Cleanup: Stop the physics simulation when leaving the tab to save CPU!
+    // Cleanup: Stop the physics simulation and remove tooltip when leaving the tab
     return () => {
       simulation.stop();
+      tooltip.remove();
     };
 
   }, [collabs]);
