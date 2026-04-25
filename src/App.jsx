@@ -86,7 +86,7 @@ function App() {
             </div>
 
             {/* The dynamically rendered View */}
-            <div className="flex-grow p-6 bg-[#0f172a]/50">
+            <div className="flex-grow p-6 bg-[#0f172a]/50 overflow-y-auto">
               {renderContent()}
             </div>
 
