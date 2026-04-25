@@ -2,14 +2,9 @@ import React, { useState, useEffect } from 'react';
 import SearchBar from './components/searchBar.jsx';
 import { mockProfile, mockRepos, mockCommits, mockCollaborators } from './data/mockData.js';
 import GalaxyCanvas from './components/GalaxyCanvas.jsx';
+import PulseView from './components/PulseView.jsx';
 
-// Placeholder components for our other two main views
-
-const PulseViewPlaceholder = () => (
-  <div className="text-devpulse-purple text-xl font-bold flex h-full items-center justify-center">
-    📊 Pulse View D3 Charts will go here
-  </div>
-);
+// Placeholder components for our other main view
 
 const CollabsViewPlaceholder = () => (
   <div className="text-slate-400 text-xl font-bold flex h-full items-center justify-center">
@@ -33,7 +28,7 @@ function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'galaxy': return <GalaxyCanvas profile={mockProfile} repos={mockRepos} />;
-      case 'pulse': return <PulseViewPlaceholder />;
+      case 'pulse': return <PulseView commits={mockCommits} />;
       case 'collabs': return <CollabsViewPlaceholder />;
       default: return <GalaxyCanvas profile={mockProfile} repos={mockRepos} />;
     }
