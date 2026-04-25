@@ -3,14 +3,7 @@ import SearchBar from './components/searchBar.jsx';
 import { mockProfile, mockRepos, mockCommits, mockCollaborators } from './data/mockData.js';
 import GalaxyCanvas from './components/GalaxyCanvas.jsx';
 import PulseView from './components/PulseView.jsx';
-
-// Placeholder components for our other main view
-
-const CollabsViewPlaceholder = () => (
-  <div className="text-slate-400 text-xl font-bold flex h-full items-center justify-center">
-    🕸️ Collabs View Node Graph will go here
-  </div>
-);
+import CollabsView from './components/CollabsView.jsx';
 
 function App() {
   // We use state to track which tab is currently selected. Defaults to 'galaxy'.
@@ -29,7 +22,7 @@ function App() {
     switch (activeTab) {
       case 'galaxy': return <GalaxyCanvas profile={mockProfile} repos={mockRepos} />;
       case 'pulse': return <PulseView commits={mockCommits} repos={mockRepos} />;
-      case 'collabs': return <CollabsViewPlaceholder />;
+      case 'collabs': return <CollabsView collabs={mockCollaborators} />;
       default: return <GalaxyCanvas profile={mockProfile} repos={mockRepos} />;
     }
   };
