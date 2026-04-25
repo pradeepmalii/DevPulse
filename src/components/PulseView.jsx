@@ -2,9 +2,10 @@ import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
 const PulseView = ({ commits }) => {
-  // 1. Create a ref to hook into our container div
+  // 1. Create refs to hook into our container divs
   const barChartRef = useRef(null);
   const heatmapRef = useRef(null);
+  const radialChartRef = useRef(null);
 
   useEffect(() => {
     // We need data to draw!
@@ -229,6 +230,113 @@ const PulseView = ({ commits }) => {
     return () => tooltip.remove();
   }, [commits]);
 
+  // --- RADIAL CHART EFFECT (Clock Face) ---
+  useEffect(() => {
+    const container = d3.select(radialChartRef.current);
+    container.selectAll('*').remove();
+
+    // 1. DATA PREPARATION: Simulate hourly commit data (0 to 23 hours)
+    // We mock typical developer hours: quiet at night, peaks around 10am and 3pm.
+    const hourlyData = Array.from({ length: 24 }, (_, i) => {
+      let count = Math.floor(Math.random() * 5); 
+      if (i >= 9 && i <= 17) count += Math.floor(Math.random() * 20) + 10; 
+      if (i === 10 || i === 15) count += 15; 
+      return { hour: i, count };
+    });
+
+    // 2. SVG SETUP
+    const width = 400;
+    const height = 400;
+    const innerRadius = 40; // The empty hole in the middle
+    const outerRadius = Math.min(width, height) / 2 - 40; // Max radius for bars
+
+    const svg = container
+      .append('svg')
+      .attr('viewBox', `0 0 ${width} ${height}`)
+      .attr('width', '100%')
+      .style('background-color', '#0f172a')
+      .append('g')
+      // CRITICAL: Radial charts must have their origin (0,0) in the CENTER!
+      .attr('transform', `translate(${width / 2},${height / 2})`);
+
+    // 3. SCALES
+    // X Scale maps 24 hours to a full 360-degree circle (2 * Math.PI in radians)
+    const x = d3.scaleLinear()
+      .domain([0, 24])
+      .range([0, 2 * Math.PI]);
+
+    // Y Scale maps the commit count to the physical radius (distance from center)
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(hourlyData, d => d.count)])
+      .range([innerRadius, outerRadius]);
+
+    const colorScale = d3.scaleSequential(d3.interpolatePurples)
+      .domain([0, d3.max(hourlyData, d => d.count)]);
+
+    // 4. DRAW THE CIRCULAR BARS
+    // D3 has an arc generator specifically for drawing wedge shapes!
+    const arcGenerator = d3.arc()
+      .innerRadius(innerRadius)
+      .outerRadius(d => y(d.count))
+      .startAngle(d => x(d.hour))
+      .endAngle(d => x(d.hour + 1))
+      .padAngle(0.05) // Small 5% gap between wedges
+      .padRadius(innerRadius);
+
+    const tooltip = d3.select('body').append('div')
+      .attr('class', 'absolute bg-slate-800 text-slate-200 p-2 rounded shadow-lg border border-slate-700 text-sm pointer-events-none opacity-0 z-50 transition-opacity');
+
+    // Bind data and draw paths
+    svg.selectAll('path')
+      .data(hourlyData)
+      .join('path')
+      .attr('fill', d => colorScale(d.count))
+      .attr('d', arcGenerator) // Pass our arc generator logic directly to the path 'd' attribute!
+      .on('mouseover', (event, d) => {
+        d3.select(event.currentTarget).attr('fill', '#a78bfa'); // Highlight wedge
+        
+        // Format 24h to 12h for humans
+        const ampm = d.hour >= 12 ? 'PM' : 'AM';
+        const displayHour = d.hour % 12 || 12;
+        
+        tooltip.style('opacity', 1)
+          .html(`<strong class="text-devpulse-glow">${d.count} commits</strong><br/>around ${displayHour} ${ampm}`);
+      })
+      .on('mousemove', (event) => {
+        tooltip.style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 28) + 'px');
+      })
+      .on('mouseout', (event, d) => {
+        d3.select(event.currentTarget).attr('fill', colorScale(d.count)); // Reset color
+        tooltip.style('opacity', 0);
+      });
+
+    // 5. DRAW CLOCK LABELS
+    const labels = [
+      { h: 0, text: '12 AM' },
+      { h: 6, text: '6 AM' },
+      { h: 12, text: '12 PM' },
+      { h: 18, text: '6 PM' }
+    ];
+
+    svg.selectAll('.clock-label')
+      .data(labels)
+      .join('text')
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'middle')
+      .attr('transform', d => {
+        // Find the angle of the hour, shift by 90deg because D3 arcs start at 12 o'clock
+        const angle = x(d.h + 0.5) - Math.PI / 2; 
+        const r = outerRadius + 20; // Push text slightly past the longest bar
+        return `translate(${Math.cos(angle) * r},${Math.sin(angle) * r})`;
+      })
+      .text(d => d.text)
+      .attr('font-size', '12px')
+      .attr('fill', '#64748b')
+      .attr('font-weight', 'bold');
+
+    return () => tooltip.remove();
+  }, []);
+
   return (
     <div className="w-full flex flex-col gap-10 pb-10">
       {/* Bar Chart Section */}
@@ -248,6 +356,26 @@ const PulseView = ({ commits }) => {
           className="w-full shadow-lg rounded-xl overflow-hidden border border-slate-700" 
         />
       </div>
+
+      {/* Radial Chart Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-col gap-4">
+          <h2 className="text-xl font-bold text-slate-200">Activity by Hour</h2>
+          <div 
+            ref={radialChartRef} 
+            className="w-full shadow-lg rounded-xl overflow-hidden border border-slate-700 bg-[#0f172a] flex items-center justify-center" 
+          />
+        </div>
+        
+        {/* Placeholder for future expansion */}
+        <div className="flex flex-col gap-4">
+           <h2 className="text-xl font-bold text-slate-200">Top Languages</h2>
+           <div className="w-full h-full shadow-lg rounded-xl overflow-hidden border border-slate-700 bg-[#0f172a] flex items-center justify-center text-slate-500 min-h-[300px]">
+             Pie chart coming in the next step!
+           </div>
+        </div>
+      </div>
+
     </div>
   );
 };
