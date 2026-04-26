@@ -137,7 +137,10 @@ function App() {
                  <span className="text-2xl font-black text-slate-300">
                    {commits ? commits.reduce((sum, d) => sum + d.count, 0) : 0}
                  </span>
-                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Total Commits</span>
+                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center flex flex-col">
+                   Total Commits
+                   <span className="text-[10px] normal-case opacity-75">(Last 365 Days)</span>
+                 </span>
                </div>
                <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
                  <span className="text-2xl font-black text-slate-300">{collaborators?.nodes?.length || 0}</span>
