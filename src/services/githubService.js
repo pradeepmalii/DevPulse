@@ -85,10 +85,16 @@ export const fetchHourlyActivity = async (username) => {
     const hours = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
     
     events.forEach(event => {
-      // Convert the UTC event timestamp into the user's local browser time!
-      const date = new Date(event.created_at);
-      const hour = date.getHours(); 
-      hours[hour].count += 1;
+      // ONLY look at events where the user actually pushed code (commits)!
+      if (event.type === 'PushEvent') {
+        // We can either count the single push, or count the actual number of commits inside the push!
+        // A single push might contain multiple commits. Let's count the actual commits!
+        const commitCount = event.payload.commits ? event.payload.commits.length : 1;
+        
+        const date = new Date(event.created_at);
+        const hour = date.getHours(); 
+        hours[hour].count += commitCount;
+      }
     });
     
     return hours;
