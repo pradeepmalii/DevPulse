@@ -74,6 +74,30 @@ export const fetchCommits = async (username) => {
   return days;
 };
 
+// Fetch recent events to figure out what time of day the user is most active!
+export const fetchHourlyActivity = async (username) => {
+  try {
+    const res = await fetch(`${BASE_URL}/users/${username}/events?per_page=100`, { headers: getHeaders() });
+    if (!res.ok) return null;
+    const events = await res.json();
+    
+    // Create 24 buckets for each hour of the day (0-23)
+    const hours = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
+    
+    events.forEach(event => {
+      // Convert the UTC event timestamp into the user's local browser time!
+      const date = new Date(event.created_at);
+      const hour = date.getHours(); 
+      hours[hour].count += 1;
+    });
+    
+    return hours;
+  } catch (e) {
+    console.error("Failed to fetch hourly activity", e);
+    return null;
+  }
+};
+
 // Fetch Collaborators: GitHub doesn't have a single "collaborators" endpoint for a user.
 // Instead, we will look at their top 3 repositories and extract all the contributors!
 export const fetchCollaborators = async (username, repos) => {

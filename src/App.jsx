@@ -4,7 +4,7 @@ import { mockProfile, mockRepos, mockCommits, mockCollaborators } from './data/m
 import GalaxyCanvas from './components/GalaxyCanvas.jsx';
 import PulseView from './components/PulseView.jsx';
 import CollabsView from './components/CollabsView.jsx';
-import { fetchProfile, fetchRepos, fetchCommits, fetchCollaborators } from './services/githubService.js';
+import { fetchProfile, fetchRepos, fetchCommits, fetchCollaborators, fetchHourlyActivity } from './services/githubService.js';
 
 function App() {
   // We use state to track which tab is currently selected
@@ -15,6 +15,7 @@ function App() {
   const [repos, setRepos] = useState(mockRepos);
   const [commits, setCommits] = useState(mockCommits);
   const [collaborators, setCollaborators] = useState(mockCollaborators);
+  const [hourlyData, setHourlyData] = useState(null);
   
   // UI State
   const [isLoading, setIsLoading] = useState(false);
@@ -25,11 +26,12 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      // 1. Fetch Profile & Repos in parallel (since they don't depend on each other)
-      const [newProfile, newRepos, newCommits] = await Promise.all([
+      // 1. Fetch Profile, Repos, Commits, and Events in parallel
+      const [newProfile, newRepos, newCommits, newHourly] = await Promise.all([
         fetchProfile(username),
         fetchRepos(username),
-        fetchCommits(username)
+        fetchCommits(username),
+        fetchHourlyActivity(username)
       ]);
       
       // 2. Fetch Collaborators (This depends on the repos we just fetched!)
@@ -40,6 +42,7 @@ function App() {
       setRepos(newRepos);
       setCommits(newCommits);
       setCollaborators(newCollabs);
+      setHourlyData(newHourly);
       
     } catch (err) {
       console.error(err);
@@ -63,7 +66,7 @@ function App() {
 
     switch (activeTab) {
       case 'galaxy': return <GalaxyCanvas profile={profile} repos={repos} />;
-      case 'pulse': return <PulseView commits={commits} repos={repos} />;
+      case 'pulse': return <PulseView commits={commits} repos={repos} hourlyData={hourlyData} />;
       case 'collabs': return <CollabsView collabs={collaborators} />;
       default: return <GalaxyCanvas profile={profile} repos={repos} />;
     }
@@ -131,8 +134,10 @@ function App() {
                  <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Followers</span>
                </div>
                <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
-                 <span className="text-2xl font-black text-slate-300">{commits?.length || 0}</span>
-                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Days Active</span>
+                 <span className="text-2xl font-black text-slate-300">
+                   {commits ? commits.reduce((sum, d) => sum + d.count, 0) : 0}
+                 </span>
+                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Total Commits</span>
                </div>
                <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
                  <span className="text-2xl font-black text-slate-300">{collaborators?.nodes?.length || 0}</span>

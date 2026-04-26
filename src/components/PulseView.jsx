@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-const PulseView = ({ commits, repos }) => {
+const PulseView = ({ commits, repos, hourlyData }) => {
   // 1. Create refs to hook into our container divs
   const barChartRef = useRef(null);
   const heatmapRef = useRef(null);
@@ -236,14 +236,18 @@ const PulseView = ({ commits, repos }) => {
     const container = d3.select(radialChartRef.current);
     container.selectAll('*').remove();
 
-    // 1. DATA PREPARATION: Simulate hourly commit data (0 to 23 hours)
-    // We mock typical developer hours: quiet at night, peaks around 10am and 3pm.
-    const hourlyData = Array.from({ length: 24 }, (_, i) => {
-      let count = Math.floor(Math.random() * 5); 
-      if (i >= 9 && i <= 17) count += Math.floor(Math.random() * 20) + 10; 
-      if (i === 10 || i === 15) count += 15; 
-      return { hour: i, count };
-    });
+    // 1. DATA PREPARATION: Use real hourly data if passed from the API!
+    let chartData = hourlyData;
+    
+    // If we have no real data yet (like on initial load), use our realistic mock simulation
+    if (!chartData) {
+      chartData = Array.from({ length: 24 }, (_, i) => {
+        let count = Math.floor(Math.random() * 5); 
+        if (i >= 9 && i <= 17) count += Math.floor(Math.random() * 20) + 10; 
+        if (i === 10 || i === 15) count += 15; 
+        return { hour: i, count };
+      });
+    }
 
     // 2. SVG SETUP
     const width = 400;
@@ -260,6 +264,9 @@ const PulseView = ({ commits, repos }) => {
       // CRITICAL: Radial charts must have their origin (0,0) in the CENTER!
       .attr('transform', `translate(${width / 2},${height / 2})`);
 
+    // We must ensure the domain max is at least 1, otherwise D3 throws errors when rendering 0s!
+    const maxCount = Math.max(1, d3.max(chartData, d => d.count));
+
     // 3. SCALES
     // X Scale maps 24 hours to a full 360-degree circle (2 * Math.PI in radians)
     const x = d3.scaleLinear()
@@ -268,11 +275,11 @@ const PulseView = ({ commits, repos }) => {
 
     // Y Scale maps the commit count to the physical radius (distance from center)
     const y = d3.scaleLinear()
-      .domain([0, d3.max(hourlyData, d => d.count)])
+      .domain([0, maxCount])
       .range([innerRadius, outerRadius]);
 
     const colorScale = d3.scaleSequential(d3.interpolatePurples)
-      .domain([0, d3.max(hourlyData, d => d.count)]);
+      .domain([0, maxCount]);
 
     // 4. DRAW THE CIRCULAR BARS
     // D3 has an arc generator specifically for drawing wedge shapes!
@@ -289,7 +296,7 @@ const PulseView = ({ commits, repos }) => {
 
     // Bind data and draw paths
     svg.selectAll('path')
-      .data(hourlyData)
+      .data(chartData)
       .join('path')
       .attr('fill', d => colorScale(d.count))
       .attr('d', arcGenerator) // Pass our arc generator logic directly to the path 'd' attribute!
@@ -336,7 +343,7 @@ const PulseView = ({ commits, repos }) => {
       .attr('font-weight', 'bold');
 
     return () => tooltip.remove();
-  }, []);
+  }, [hourlyData]);
 
   // --- PIE CHART EFFECT (Top Languages Donut) ---
   useEffect(() => {
