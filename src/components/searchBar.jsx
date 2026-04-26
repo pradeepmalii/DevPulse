@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 
-export default function SearchBar() {
-  const [username, setUsername] = useState('pradeepmalii'); // Default to your username!
+export default function SearchBar({ onSearch }) {
+  const [username, setUsername] = useState(''); // Default to empty
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (!username.trim()) return;
     
-    // For now, we will just log it. Later this will trigger the API!
-    console.log("Searching for:", username);
+    if (onSearch) {
+      onSearch(username.trim());
+    }
   };
 
   return (
