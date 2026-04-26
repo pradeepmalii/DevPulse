@@ -10,11 +10,11 @@ function App() {
   // We use state to track which tab is currently selected
   const [activeTab, setActiveTab] = useState('galaxy');
 
-  // Core Data State (Initialized with our mock data so the app isn't blank on load!)
-  const [profile, setProfile] = useState(mockProfile);
-  const [repos, setRepos] = useState(mockRepos);
-  const [commits, setCommits] = useState(mockCommits);
-  const [collaborators, setCollaborators] = useState(mockCollaborators);
+  // Data State starts as null!
+  const [profile, setProfile] = useState(null);
+  const [repos, setRepos] = useState(null);
+  const [commits, setCommits] = useState(null);
+  const [collaborators, setCollaborators] = useState(null);
   const [hourlyData, setHourlyData] = useState(null);
   
   // UI State
@@ -54,16 +54,6 @@ function App() {
 
   // Helper function to render the correct component based on activeTab state
   const renderContent = () => {
-    // If we are loading new data, show a massive spinner!
-    if (isLoading) {
-      return (
-        <div className="flex flex-col items-center justify-center h-full text-devpulse-glow gap-4">
-          <div className="w-16 h-16 border-4 border-slate-700 border-t-devpulse-glow rounded-full animate-spin"></div>
-          <p className="font-bold text-xl animate-pulse">Initializing Hyperdrive...</p>
-        </div>
-      );
-    }
-
     switch (activeTab) {
       case 'galaxy': return <GalaxyCanvas profile={profile} repos={repos} />;
       case 'pulse': return <PulseView commits={commits} repos={repos} hourlyData={hourlyData} />;
@@ -88,73 +78,63 @@ function App() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[600px]">
           
           {/* Left Sidebar: Search & Stats */}
-          <div className="bg-devpulse-card p-6 rounded-xl border border-slate-800 shadow-xl flex flex-col gap-6 col-span-1">
-             <h2 className="text-xl text-slate-200 font-bold w-full text-left">Search Profile</h2>
+          {/* Profile Card */}
+          <div className="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700">
              <SearchBar onSearch={handleSearch} />
              
-             {error && (
-               <div className="bg-red-500/20 border border-red-500 text-red-400 p-3 rounded-lg text-sm font-medium">
-                 ⚠️ {error}
+             {profile ? (
+               <>
+                 <div className="mt-8 flex items-center gap-4">
+                   <img 
+                     src={profile.avatar_url} 
+                     alt="Profile" 
+                     className="w-16 h-16 rounded-full border-2 border-devpulse-purple"
+                   />
+                   <div>
+                     <h2 className="text-xl font-bold text-white">{profile.name || profile.login}</h2>
+                     <p className="text-devpulse-purple">@{profile.login}</p>
+                   </div>
+                 </div>
+                 
+                 {/* Stat Grid */}
+                 <div className="grid grid-cols-2 gap-4 mt-2 border-t border-slate-800 pt-6">
+                   <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                     <span className="text-2xl font-black text-devpulse-glow">{profile.public_repos || 0}</span>
+                     <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Repositories</span>
+                   </div>
+                   <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                     <span className="text-2xl font-black text-devpulse-purple">{profile.followers || 0}</span>
+                     <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Followers</span>
+                   </div>
+                   <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                     <span className="text-2xl font-black text-slate-300">
+                       {commits ? commits.reduce((sum, d) => sum + d.count, 0) : 0}
+                     </span>
+                     <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center flex flex-col">
+                       Total Commits
+                       <span className="text-[10px] normal-case opacity-75">(Last 365 Days)</span>
+                     </span>
+                   </div>
+                   <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                     <span className="text-2xl font-black text-slate-300">{collaborators?.nodes?.length || 0}</span>
+                     <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Connections</span>
+                   </div>
+                   
+                   {/* Wide Card for Active Days */}
+                   <div className="col-span-2 bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                     <span className="text-2xl font-black text-emerald-400">
+                       {commits ? commits.filter(d => d.count > 0).length : 0}
+                     </span>
+                     <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Active Days (Last 365 Days)</span>
+                   </div>
+                 </div>
+               </>
+             ) : (
+               <div className="mt-8 text-center text-slate-400 py-10 border-t border-slate-800">
+                 <div className="text-4xl mb-4 opacity-50">🚀</div>
+                 <p className="text-sm">Enter a GitHub username above to load their DevPulse.</p>
                </div>
              )}
-             
-             {/* Profile Summary Card */}
-             <div className="flex flex-col gap-4 mt-2">
-               <div className="flex items-center gap-4">
-                 <div className="w-16 h-16 rounded-full bg-slate-700 overflow-hidden border-2 border-devpulse-glow shrink-0">
-                   {profile.avatar_url ? (
-                     <img src={profile.avatar_url} alt="Profile Avatar" className="w-full h-full object-cover" />
-                   ) : (
-                     <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold text-xl">
-                       {profile.login ? profile.login.charAt(0).toUpperCase() : '?'}
-                     </div>
-                   )}
-                 </div>
-                 <div className="flex flex-col overflow-hidden">
-                   <h3 className="text-lg font-bold text-slate-200 truncate">{profile.name || profile.login}</h3>
-                   <a href={`https://github.com/${profile.login}`} target="_blank" rel="noreferrer" className="text-sm text-devpulse-purple hover:text-devpulse-glow transition-colors truncate">
-                     @{profile.login}
-                   </a>
-                 </div>
-               </div>
-               
-               {profile.bio && (
-                 <p className="text-sm text-slate-400 italic">"{profile.bio}"</p>
-               )}
-             </div>
-
-             {/* Stat Grid */}
-             <div className="grid grid-cols-2 gap-4 mt-2 border-t border-slate-800 pt-6">
-               <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
-                 <span className="text-2xl font-black text-devpulse-glow">{profile.public_repos || 0}</span>
-                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Repositories</span>
-               </div>
-               <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
-                 <span className="text-2xl font-black text-devpulse-purple">{profile.followers || 0}</span>
-                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Followers</span>
-               </div>
-               <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
-                 <span className="text-2xl font-black text-slate-300">
-                   {commits ? commits.reduce((sum, d) => sum + d.count, 0) : 0}
-                 </span>
-                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center flex flex-col">
-                   Total Commits
-                   <span className="text-[10px] normal-case opacity-75">(Last 365 Days)</span>
-                 </span>
-               </div>
-               <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
-                 <span className="text-2xl font-black text-slate-300">{collaborators?.nodes?.length || 0}</span>
-                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Connections</span>
-               </div>
-               
-               {/* Wide Card for Active Days */}
-               <div className="col-span-2 bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
-                 <span className="text-2xl font-black text-emerald-400">
-                   {commits ? commits.filter(d => d.count > 0).length : 0}
-                 </span>
-                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Active Days (Last 365 Days)</span>
-               </div>
-             </div>
           </div>
 
           {/* Right Area: Tab Navigation & Main Content */}
