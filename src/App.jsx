@@ -47,9 +47,49 @@ function App() {
              <h2 className="text-xl text-slate-200 font-bold w-full text-left">Search Profile</h2>
              <SearchBar />
              
-             {/* Stub for Stat Cards that we will build later */}
-             <div className="flex-grow border-t border-slate-800 mt-4 pt-4 flex items-center justify-center text-slate-500 text-center px-4">
-               Stats like Total Commits & Peak Hours will appear here
+             {/* Profile Summary Card */}
+             <div className="flex flex-col gap-4 mt-2">
+               <div className="flex items-center gap-4">
+                 <div className="w-16 h-16 rounded-full bg-slate-700 overflow-hidden border-2 border-devpulse-glow shrink-0">
+                   {mockProfile.avatar_url ? (
+                     <img src={mockProfile.avatar_url} alt="Profile Avatar" className="w-full h-full object-cover" />
+                   ) : (
+                     <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold text-xl">
+                       {mockProfile.login ? mockProfile.login.charAt(0).toUpperCase() : '?'}
+                     </div>
+                   )}
+                 </div>
+                 <div className="flex flex-col overflow-hidden">
+                   <h3 className="text-lg font-bold text-slate-200 truncate">{mockProfile.name || mockProfile.login}</h3>
+                   <a href={`https://github.com/${mockProfile.login}`} target="_blank" rel="noreferrer" className="text-sm text-devpulse-purple hover:text-devpulse-glow transition-colors truncate">
+                     @{mockProfile.login}
+                   </a>
+                 </div>
+               </div>
+               
+               {mockProfile.bio && (
+                 <p className="text-sm text-slate-400 italic">"{mockProfile.bio}"</p>
+               )}
+             </div>
+
+             {/* Stat Grid */}
+             <div className="grid grid-cols-2 gap-4 mt-2 border-t border-slate-800 pt-6">
+               <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                 <span className="text-2xl font-black text-devpulse-glow">{mockProfile.public_repos || 0}</span>
+                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Repositories</span>
+               </div>
+               <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                 <span className="text-2xl font-black text-devpulse-purple">{mockProfile.followers || 0}</span>
+                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Followers</span>
+               </div>
+               <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                 <span className="text-2xl font-black text-slate-300">{mockCommits?.length || 0}</span>
+                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Days Active</span>
+               </div>
+               <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                 <span className="text-2xl font-black text-slate-300">{mockCollaborators?.nodes?.length || 0}</span>
+                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Connections</span>
+               </div>
              </div>
           </div>
 
