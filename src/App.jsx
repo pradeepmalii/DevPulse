@@ -143,6 +143,14 @@ function App() {
                  <span className="text-2xl font-black text-slate-300">{collaborators?.nodes?.length || 0}</span>
                  <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Connections</span>
                </div>
+               
+               {/* Wide Card for Active Days */}
+               <div className="col-span-2 bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                 <span className="text-2xl font-black text-emerald-400">
+                   {commits ? commits.filter(d => d.count > 0).length : 0}
+                 </span>
+                 <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Active Days (Last 365 Days)</span>
+               </div>
              </div>
           </div>
 
