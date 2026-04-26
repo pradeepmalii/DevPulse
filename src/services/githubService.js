@@ -77,25 +77,26 @@ export const fetchCommits = async (username) => {
 // Fetch recent events to figure out what time of day the user is most active!
 export const fetchHourlyActivity = async (username) => {
   try {
-    const res = await fetch(`${BASE_URL}/users/${username}/events?per_page=100`, { headers: getHeaders() });
-    if (!res.ok) return null;
-    const events = await res.json();
-    
-    // Create 24 buckets for each hour of the day (0-23)
     const hours = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
     
-    events.forEach(event => {
-      // ONLY look at events where the user actually pushed code (commits)!
-      if (event.type === 'PushEvent') {
-        // We can either count the single push, or count the actual number of commits inside the push!
-        // A single push might contain multiple commits. Let's count the actual commits!
-        const commitCount = event.payload.commits ? event.payload.commits.length : 1;
-        
-        const date = new Date(event.created_at);
-        const hour = date.getHours(); 
-        hours[hour].count += commitCount;
-      }
-    });
+    // GitHub limits the events API to 300 events total. 
+    // We will fetch all 3 pages (100 per page) to get the largest sample size possible!
+    for (let page = 1; page <= 3; page++) {
+      const res = await fetch(`${BASE_URL}/users/${username}/events?per_page=100&page=${page}`, { headers: getHeaders() });
+      if (!res.ok) break;
+      
+      const events = await res.json();
+      if (events.length === 0) break; // Stop if there are no more events
+      
+      events.forEach(event => {
+        if (event.type === 'PushEvent') {
+          const commitCount = event.payload.commits ? event.payload.commits.length : 1;
+          const date = new Date(event.created_at);
+          const hour = date.getHours(); 
+          hours[hour].count += commitCount;
+        }
+      });
+    }
     
     return hours;
   } catch (e) {
