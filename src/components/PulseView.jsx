@@ -40,7 +40,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .append('svg')
       .attr('viewBox', `0 0 800 300`) // viewBox coordinates
       .attr('width', '100%')          // Force it to scale horizontally to fit the card!
-      .style('background-color', '#0f172a')
+      .style('background-color', '#000000')
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -58,7 +58,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .range([height, 0]);
 
     // Color Scale: Automatically maps low/high values to light/dark purple!
-    const colorScale = d3.scaleSequential(d3.interpolatePurples)
+    const colorScale = d3.scaleLinear().range(['#064e3b', '#4ade80'])
       .domain([0, d3.max(weeklyCommits, d => d.total)]);
 
     // --- AXES ---
@@ -76,7 +76,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
     // --- TOOLTIP SETUP ---
     // Tooltips are easier to style as standard HTML <div> tags appended to the body, not inside the SVG
     const tooltip = d3.select('body').append('div')
-      .attr('class', 'absolute bg-slate-800 text-slate-200 p-3 rounded-lg shadow-xl border border-slate-700 text-sm pointer-events-none opacity-0 transition-opacity z-50');
+      .attr('class', 'absolute bg-[#0a0a0a] text-white p-3 rounded-lg shadow-xl border border-[#222222] text-sm pointer-events-none opacity-0 transition-opacity z-50');
 
     // --- DRAW BARS ---
     // The famous D3 Data Binding pattern: .data().join()
@@ -88,14 +88,14 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .attr('y', d => y(d.total))
       .attr('width', x.bandwidth())
       .attr('height', d => height - y(d.total))
-      .attr('fill', d => d.total > 0 ? colorScale(d.total) : '#1e293b') // Highlight active weeks, grey out zero weeks
+      .attr('fill', d => d.total > 0 ? colorScale(d.total) : '#111111') // Highlight active weeks, grey out zero weeks
       .attr('rx', 2) // rounded corners
       // --- INTERACTION ---
       .on('mouseover', (event, d) => {
         d3.select(event.currentTarget).attr('opacity', 0.7); // visually highlight the bar
         tooltip.style('opacity', 1)
-          .html(`<div class="font-bold text-devpulse-glow">${d.total} Commits</div>
-                 <div class="text-xs text-slate-400 mt-1">${d.startDate} to ${d.endDate}</div>`);
+          .html(`<div class="font-bold text-devpulse-accent">${d.total} Commits</div>
+                 <div class="text-xs text-gray-400 mt-1">${d.startDate} to ${d.endDate}</div>`);
       })
       .on('mousemove', (event) => {
         tooltip
@@ -144,14 +144,14 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       // Using viewBox along with width="100%" forces the SVG to scale down gracefully!
       .attr('viewBox', `0 0 ${width} ${height}`)
       .attr('width', '100%')
-      .style('background-color', '#0f172a')
+      .style('background-color', '#000000')
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
     // 3. COLOR SCALE
     // Same purple sequential scale as the bar chart
     const maxCount = d3.max(heatmapData, d => d.count);
-    const colorScale = d3.scaleSequential(d3.interpolatePurples).domain([0, maxCount]);
+    const colorScale = d3.scaleLinear().range(['#064e3b', '#4ade80']).domain([0, maxCount]);
 
     // 4. DRAW DAY LABELS
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -168,7 +168,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
 
     // 5. TOOLTIP
     const tooltip = d3.select('body').append('div')
-      .attr('class', 'absolute bg-slate-800 text-slate-200 p-2 rounded shadow-lg border border-slate-700 text-sm pointer-events-none opacity-0 z-50 transition-opacity');
+      .attr('class', 'absolute bg-[#0a0a0a] text-white p-2 rounded shadow-lg border border-[#222222] text-sm pointer-events-none opacity-0 z-50 transition-opacity');
 
     // 6. DRAW THE 364 SQUARES
     svg.selectAll('.cell')
@@ -181,13 +181,13 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .attr('x', d => d.weekIndex * (cellSize + cellGap))
       .attr('y', d => d.dayIndex * (cellSize + cellGap))
       // Empty days get the dark background color, active days get the color scale
-      .attr('fill', d => d.count > 0 ? colorScale(d.count) : '#1e293b')
+      .attr('fill', d => d.count > 0 ? colorScale(d.count) : '#111111')
       .attr('rx', 3) // Soft rounded corners
       // INTERACTION
       .on('mouseover', (event, d) => {
         d3.select(event.currentTarget).attr('stroke', '#a78bfa').attr('stroke-width', 2);
         tooltip.style('opacity', 1)
-          .html(`<strong class="text-devpulse-glow">${d.count} commits</strong> on ${d.date}`);
+          .html(`<strong class="text-devpulse-accent">${d.count} commits</strong> on ${d.date}`);
       })
       .on('mousemove', (event) => {
         tooltip.style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 28) + 'px');
@@ -219,7 +219,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .attr('width', cellSize)
       .attr('height', cellSize)
       .attr('rx', 2)
-      .attr('fill', d => d === 0 ? '#1e293b' : colorScale(d * (maxCount / 4)));
+      .attr('fill', d => d === 0 ? '#111111' : colorScale(d * (maxCount / 4)));
 
     legendGroup.append('text')
       .attr('x', 5 * (cellSize + cellGap) + 5)
@@ -259,7 +259,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .append('svg')
       .attr('viewBox', `0 0 ${width} ${height}`)
       .attr('width', '100%')
-      .style('background-color', '#0f172a')
+      .style('background-color', '#000000')
       .append('g')
       // CRITICAL: Radial charts must have their origin (0,0) in the CENTER!
       .attr('transform', `translate(${width / 2},${height / 2})`);
@@ -278,7 +278,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .domain([0, maxCount])
       .range([innerRadius, outerRadius]);
 
-    const colorScale = d3.scaleSequential(d3.interpolatePurples)
+    const colorScale = d3.scaleLinear().range(['#064e3b', '#4ade80'])
       .domain([0, maxCount]);
 
     // 4. DRAW THE CIRCULAR BARS
@@ -292,7 +292,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .padRadius(innerRadius);
 
     const tooltip = d3.select('body').append('div')
-      .attr('class', 'absolute bg-slate-800 text-slate-200 p-2 rounded shadow-lg border border-slate-700 text-sm pointer-events-none opacity-0 z-50 transition-opacity');
+      .attr('class', 'absolute bg-[#0a0a0a] text-white p-2 rounded shadow-lg border border-[#222222] text-sm pointer-events-none opacity-0 z-50 transition-opacity');
 
     // Bind data and draw paths
     svg.selectAll('path')
@@ -308,7 +308,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
         const displayHour = d.hour % 12 || 12;
         
         tooltip.style('opacity', 1)
-          .html(`<strong class="text-devpulse-glow">${d.count} commits</strong><br/>around ${displayHour} ${ampm}`);
+          .html(`<strong class="text-devpulse-accent">${d.count} commits</strong><br/>around ${displayHour} ${ampm}`);
       })
       .on('mousemove', (event) => {
         tooltip.style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 28) + 'px');
@@ -375,7 +375,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .append('svg')
       .attr('viewBox', `0 0 ${width} ${height}`)
       .attr('width', '100%')
-      .style('background-color', '#0f172a')
+      .style('background-color', '#000000')
       .append('g')
       .attr('transform', `translate(${width / 2},${height / 2})`);
 
@@ -408,7 +408,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .cornerRadius(6);
 
     const tooltip = d3.select('body').append('div')
-      .attr('class', 'absolute bg-slate-800 text-slate-200 p-2 rounded shadow-lg border border-slate-700 text-sm pointer-events-none opacity-0 z-50 transition-opacity');
+      .attr('class', 'absolute bg-[#0a0a0a] text-white p-2 rounded shadow-lg border border-[#222222] text-sm pointer-events-none opacity-0 z-50 transition-opacity');
 
     // Bind the computed pie data to path elements
     svg.selectAll('path')
@@ -461,41 +461,41 @@ const PulseView = ({ commits, repos, hourlyData }) => {
     <div className="w-full flex flex-col gap-10 pb-10">
       {/* Bar Chart Section */}
       <div className="flex flex-col gap-4">
-        <h2 className="text-xl font-bold text-slate-200">Weekly Commit Pulse</h2>
+        <h2 className="text-xl font-bold text-white">Weekly Commit Pulse</h2>
         <div 
           ref={barChartRef} 
-          className="w-full shadow-lg rounded-xl overflow-hidden border border-slate-700" 
+          className="w-full shadow-lg rounded-xl overflow-hidden border border-[#222222]" 
         />
       </div>
 
       {/* Heatmap Section */}
       <div className="flex flex-col gap-4">
-        <h2 className="text-xl font-bold text-slate-200">52-Week Contribution Grid</h2>
+        <h2 className="text-xl font-bold text-white">52-Week Contribution Grid</h2>
         <div 
           ref={heatmapRef} 
-          className="w-full shadow-lg rounded-xl overflow-hidden border border-slate-700" 
+          className="w-full shadow-lg rounded-xl overflow-hidden border border-[#222222]" 
         />
       </div>
 
       {/* Radial Chart Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col gap-4">
-          <h2 className="text-xl font-bold text-slate-200 flex items-baseline gap-2">
+          <h2 className="text-xl font-bold text-white flex items-baseline gap-2">
             Activity by Hour
-            <span className="text-sm font-normal text-slate-400">(Recent Pushes)</span>
+            <span className="text-sm font-normal text-gray-400">(Recent Pushes)</span>
           </h2>
           <div 
             ref={radialChartRef} 
-            className="w-full shadow-lg rounded-xl overflow-hidden border border-slate-700 bg-[#0f172a] flex items-center justify-center" 
+            className="w-full shadow-lg rounded-xl overflow-hidden border border-[#222222] bg-[#000000] flex items-center justify-center" 
           />
         </div>
         
         {/* Top Languages Donut Chart Section */}
         <div className="flex flex-col gap-4">
-           <h2 className="text-xl font-bold text-slate-200">Top Languages</h2>
+           <h2 className="text-xl font-bold text-white">Top Languages</h2>
            <div 
              ref={pieChartRef} 
-             className="w-full shadow-lg rounded-xl overflow-hidden border border-slate-700 bg-[#0f172a] flex items-center justify-center" 
+             className="w-full shadow-lg rounded-xl overflow-hidden border border-[#222222] bg-[#000000] flex items-center justify-center" 
            />
         </div>
       </div>
@@ -505,3 +505,4 @@ const PulseView = ({ commits, repos, hourlyData }) => {
 };
 
 export default PulseView;
+

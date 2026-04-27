@@ -92,7 +92,7 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
       const radius = 35; 
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, Math.PI * 2); 
-      ctx.fillStyle = '#1e293b'; 
+      ctx.fillStyle = '#111111'; 
       ctx.fill();
       ctx.lineWidth = 3;
       ctx.strokeStyle = '#a78bfa'; 
@@ -253,3 +253,4 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
 };
 
 export default GalaxyCanvas;
+

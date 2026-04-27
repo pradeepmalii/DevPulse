@@ -8,10 +8,10 @@ export default {
     extend: {
       colors: {
         devpulse: {
-          dark: '#0f172a',
-          card: '#1e293b',
-          purple: '#7c3aed',
-          glow: '#a78bfa'
+          dark: '#000000',
+          card: '#0a0a0a',
+          primary: '#22c55e',
+          accent: '#4ade80'
         }
       }
     }

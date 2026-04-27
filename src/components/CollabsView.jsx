@@ -20,7 +20,7 @@ const CollabsView = ({ collabs }) => {
       .attr('width', '100%')
       .attr('height', '100%')
       .attr('viewBox', [0, 0, width, height])
-      .style('background-color', '#0f172a') // devpulse-dark
+      .style('background-color', '#000000') // devpulse-dark
       // d3.zoom() attaches mouse wheel and drag events automatically!
       .call(d3.zoom().on('zoom', (event) => {
         g.attr('transform', event.transform);
@@ -77,7 +77,7 @@ const CollabsView = ({ collabs }) => {
 
     // --- NEW: TOOLTIP ---
     const tooltip = d3.select('body').append('div')
-      .attr('class', 'absolute bg-slate-800 text-slate-200 p-2 rounded shadow-lg border border-slate-700 text-sm pointer-events-none opacity-0 z-50 transition-opacity');
+      .attr('class', 'absolute bg-[#0a0a0a] text-white p-2 rounded shadow-lg border border-[#222222] text-sm pointer-events-none opacity-0 z-50 transition-opacity');
 
     // 5. DRAW NODES (Groups containing circles and text)
     // We change this from just 'circle' to a 'g' so we can attach text labels inside!
@@ -100,7 +100,7 @@ const CollabsView = ({ collabs }) => {
           .attr('stroke-width', 4);
 
         tooltip.style('opacity', 1)
-          .html(`<strong class="text-devpulse-glow">${d.id}</strong><br/><span class="text-slate-400">Collaborator</span>`);
+          .html(`<strong class="text-devpulse-accent">${d.id}</strong><br/><span class="text-gray-400">Collaborator</span>`);
       })
       .on('mousemove', (event) => {
         tooltip.style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 28) + 'px');
@@ -118,7 +118,7 @@ const CollabsView = ({ collabs }) => {
     // Add the glowing circle background
     node.append('circle')
       .attr('r', 16)
-      .attr('fill', '#1e293b') // dark card color
+      .attr('fill', '#111111') // dark card color
       .attr('stroke', '#a78bfa') // purple border
       .attr('stroke-width', 2);
 
@@ -158,16 +158,17 @@ const CollabsView = ({ collabs }) => {
 
   return (
     <div className="w-full h-full flex flex-col gap-4 pb-10">
-      <h2 className="text-xl font-bold text-slate-200">Collaboration Network</h2>
-      <p className="text-sm text-slate-400">Scroll to zoom. Drag to pan around the galaxy of developers.</p>
+      <h2 className="text-xl font-bold text-white">Collaboration Network</h2>
+      <p className="text-sm text-gray-400">Scroll to zoom. Drag to pan around the galaxy of developers.</p>
       
       <div 
         ref={containerRef} 
         // We set a fixed height here so the network graph has plenty of room
-        className="w-full h-[600px] shadow-lg rounded-xl overflow-hidden border border-slate-700 cursor-grab active:cursor-grabbing" 
+        className="w-full h-[600px] shadow-lg rounded-xl overflow-hidden border border-[#222222] cursor-grab active:cursor-grabbing" 
       />
     </div>
   );
 };
 
 export default CollabsView;
+

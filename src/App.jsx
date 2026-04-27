@@ -63,14 +63,14 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-devpulse-dark text-slate-200 font-sans">
+    <div className="min-h-screen bg-devpulse-dark text-white font-sans">
       
       {/* Top Navigation */}
-      <nav className="border-b border-slate-800 bg-devpulse-card px-6 py-4 flex justify-between items-center shadow-lg">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-devpulse-glow to-blue-400 bg-clip-text text-transparent">
+      <nav className="border-b border-[#222222] bg-devpulse-card px-6 py-4 flex justify-between items-center shadow-lg">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-devpulse-accent to-blue-400 bg-clip-text text-transparent">
           DevPulse
         </h1>
-        <div className="text-sm font-medium text-slate-400">GitHub Visualizer</div>
+        <div className="text-sm font-medium text-gray-400">GitHub Visualizer</div>
       </nav>
 
       {/* Main Layout Grid */}
@@ -79,7 +79,7 @@ function App() {
           
           {/* Left Sidebar: Search & Stats */}
           {/* Profile Card */}
-          <div className="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700">
+          <div className="bg-[#0a0a0a] rounded-xl p-6 shadow-xl border border-[#222222]">
              <SearchBar onSearch={handleSearch} />
              
              {profile ? (
@@ -88,49 +88,49 @@ function App() {
                    <img 
                      src={profile.avatar_url} 
                      alt="Profile" 
-                     className="w-16 h-16 rounded-full border-2 border-devpulse-purple"
+                     className="w-16 h-16 rounded-full border-2 border-devpulse-primary"
                    />
                    <div>
                      <h2 className="text-xl font-bold text-white">{profile.name || profile.login}</h2>
-                     <p className="text-devpulse-purple">@{profile.login}</p>
+                     <p className="text-devpulse-primary">@{profile.login}</p>
                    </div>
                  </div>
                  
                  {/* Stat Grid */}
-                 <div className="grid grid-cols-2 gap-4 mt-2 border-t border-slate-800 pt-6">
-                   <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
-                     <span className="text-2xl font-black text-devpulse-glow">{profile.public_repos || 0}</span>
-                     <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Repositories</span>
+                 <div className="grid grid-cols-2 gap-4 mt-2 border-t border-[#222222] pt-6">
+                   <div className="bg-[#000000] p-4 rounded-lg border border-[#222222] flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                     <span className="text-2xl font-black text-devpulse-accent">{profile.public_repos || 0}</span>
+                     <span className="text-xs text-gray-400 uppercase tracking-wider mt-1 text-center">Repositories</span>
                    </div>
-                   <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
-                     <span className="text-2xl font-black text-devpulse-purple">{profile.followers || 0}</span>
-                     <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Followers</span>
+                   <div className="bg-[#000000] p-4 rounded-lg border border-[#222222] flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                     <span className="text-2xl font-black text-devpulse-primary">{profile.followers || 0}</span>
+                     <span className="text-xs text-gray-400 uppercase tracking-wider mt-1 text-center">Followers</span>
                    </div>
-                   <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
-                     <span className="text-2xl font-black text-slate-300">
+                   <div className="bg-[#000000] p-4 rounded-lg border border-[#222222] flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                     <span className="text-2xl font-black text-gray-100">
                        {commits ? commits.reduce((sum, d) => sum + d.count, 0) : 0}
                      </span>
-                     <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center flex flex-col">
+                     <span className="text-xs text-gray-400 uppercase tracking-wider mt-1 text-center flex flex-col">
                        Total Commits
                        <span className="text-[10px] normal-case opacity-75">(Last 365 Days)</span>
                      </span>
                    </div>
-                   <div className="bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
-                     <span className="text-2xl font-black text-slate-300">{collaborators?.nodes?.length || 0}</span>
-                     <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Connections</span>
+                   <div className="bg-[#000000] p-4 rounded-lg border border-[#222222] flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                     <span className="text-2xl font-black text-gray-100">{collaborators?.nodes?.length || 0}</span>
+                     <span className="text-xs text-gray-400 uppercase tracking-wider mt-1 text-center">Connections</span>
                    </div>
                    
                    {/* Wide Card for Active Days */}
-                   <div className="col-span-2 bg-[#0f172a] p-4 rounded-lg border border-slate-700 flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
+                   <div className="col-span-2 bg-[#000000] p-4 rounded-lg border border-[#222222] flex flex-col items-center transform transition hover:-translate-y-1 hover:shadow-lg hover:border-slate-500">
                      <span className="text-2xl font-black text-emerald-400">
                        {commits ? commits.filter(d => d.count > 0).length : 0}
                      </span>
-                     <span className="text-xs text-slate-400 uppercase tracking-wider mt-1 text-center">Active Days (Last 365 Days)</span>
+                     <span className="text-xs text-gray-400 uppercase tracking-wider mt-1 text-center">Active Days (Last 365 Days)</span>
                    </div>
                  </div>
                </>
              ) : (
-               <div className="mt-8 text-center text-slate-400 py-10 border-t border-slate-800">
+               <div className="mt-8 text-center text-gray-400 py-10 border-t border-[#222222]">
                  <div className="text-4xl mb-4 opacity-50">🚀</div>
                  <p className="text-sm">Enter a GitHub username above to load their DevPulse.</p>
                </div>
@@ -138,32 +138,32 @@ function App() {
           </div>
 
           {/* Right Area: Tab Navigation & Main Content */}
-          <div className="bg-devpulse-card rounded-xl border border-slate-800 shadow-xl col-span-1 md:col-span-2 flex flex-col overflow-hidden">
+          <div className="bg-devpulse-card rounded-xl border border-[#222222] shadow-xl col-span-1 md:col-span-2 flex flex-col overflow-hidden">
             
             {/* The Tab Buttons */}
-            <div className="flex border-b border-slate-800">
+            <div className="flex border-b border-[#222222]">
               <button 
                 onClick={() => setActiveTab('galaxy')} 
-                className={`flex-1 py-4 text-center font-medium transition-colors ${activeTab === 'galaxy' ? 'border-b-2 border-devpulse-glow text-devpulse-glow' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                className={`flex-1 py-4 text-center font-medium transition-colors ${activeTab === 'galaxy' ? 'border-b-2 border-devpulse-accent text-devpulse-accent' : 'text-gray-400 hover:text-white hover:bg-[#0a0a0a]/50'}`}
               >
                 Galaxy
               </button>
               <button 
                 onClick={() => setActiveTab('pulse')} 
-                className={`flex-1 py-4 text-center font-medium transition-colors ${activeTab === 'pulse' ? 'border-b-2 border-devpulse-purple text-devpulse-purple' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                className={`flex-1 py-4 text-center font-medium transition-colors ${activeTab === 'pulse' ? 'border-b-2 border-devpulse-primary text-devpulse-primary' : 'text-gray-400 hover:text-white hover:bg-[#0a0a0a]/50'}`}
               >
                 Pulse
               </button>
               <button 
                 onClick={() => setActiveTab('collabs')} 
-                className={`flex-1 py-4 text-center font-medium transition-colors ${activeTab === 'collabs' ? 'border-b-2 border-slate-300 text-slate-200' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+                className={`flex-1 py-4 text-center font-medium transition-colors ${activeTab === 'collabs' ? 'border-b-2 border-slate-300 text-white' : 'text-gray-400 hover:text-white hover:bg-[#0a0a0a]/50'}`}
               >
                 Collabs
               </button>
             </div>
 
             {/* The dynamically rendered View */}
-            <div className="flex-grow p-6 bg-[#0f172a]/50 overflow-y-auto">
+            <div className="flex-grow p-6 bg-[#000000]/50 overflow-y-auto">
               {renderContent()}
             </div>
 

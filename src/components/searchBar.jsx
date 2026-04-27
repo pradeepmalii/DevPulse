@@ -19,7 +19,7 @@ export default function SearchBar({ onSearch }) {
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         placeholder="Enter GitHub Username..."
-        className="flex-1 bg-slate-900 border border-slate-700 text-slate-200 px-4 py-2 rounded-lg focus:outline-none focus:border-devpulse-glow transition-colors"
+        className="flex-1 bg-slate-900 border border-[#222222] text-white px-4 py-2 rounded-lg focus:outline-none focus:border-devpulse-accent transition-colors"
       />
       <button 
         type="submit"
@@ -30,3 +30,4 @@ export default function SearchBar({ onSearch }) {
     </form>
   );
 }
+
