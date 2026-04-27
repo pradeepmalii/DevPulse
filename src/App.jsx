@@ -131,7 +131,6 @@ function App() {
                </>
              ) : (
                <div className="mt-8 text-center text-white py-10 border-t border-[#222222]">
-                 <div className="text-4xl mb-4 opacity-50">🚀</div>
                  <p className="text-sm">Enter a GitHub username above to load their DevPulse.</p>
                </div>
              )}

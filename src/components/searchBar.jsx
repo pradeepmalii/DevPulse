@@ -25,7 +25,7 @@ export default function SearchBar({ onSearch }) {
         type="submit"
         className="bg-devpulse-primary hover:bg-devpulse-accent text-black px-4 py-2 rounded-lg font-bold transition-transform hover:scale-105 active:scale-95"
       >
-        Search 🚀
+        Search
       </button>
     </form>
   );
