@@ -254,3 +254,4 @@ const GalaxyCanvas = ({ profile, repos = [] }) => {
 
 export default GalaxyCanvas;
 
+

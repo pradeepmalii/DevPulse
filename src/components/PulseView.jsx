@@ -66,12 +66,12 @@ const PulseView = ({ commits, repos, hourlyData }) => {
     svg.append('g')
       .attr('transform', `translate(0,${height})`)
       .call(d3.axisBottom(x).tickValues(x.domain().filter(d => d % 5 === 0))) // Only show every 5th week label
-      .attr('color', '#475569'); // slate-600
+      .attr('color', '#ffffff'); // slate-600
 
     // Draw Y Axis (Left)
     svg.append('g')
       .call(d3.axisLeft(y).ticks(5))
-      .attr('color', '#475569');
+      .attr('color', '#ffffff');
 
     // --- TOOLTIP SETUP ---
     // Tooltips are easier to style as standard HTML <div> tags appended to the body, not inside the SVG
@@ -94,8 +94,8 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .on('mouseover', (event, d) => {
         d3.select(event.currentTarget).attr('opacity', 0.7); // visually highlight the bar
         tooltip.style('opacity', 1)
-          .html(`<div class="font-bold text-devpulse-accent">${d.total} Commits</div>
-                 <div class="text-xs text-gray-400 mt-1">${d.startDate} to ${d.endDate}</div>`);
+          .html(`<div class="font-bold text-white">${d.total} Commits</div>
+                 <div class="text-xs text-white mt-1">${d.startDate} to ${d.endDate}</div>`);
       })
       .on('mousemove', (event) => {
         tooltip
@@ -164,7 +164,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       // Show all days!
       .text(d => d)
       .attr('font-size', '10px')
-      .attr('fill', '#64748b'); // slate-500
+      .attr('fill', '#ffffff'); // slate-500
 
     // 5. TOOLTIP
     const tooltip = d3.select('body').append('div')
@@ -187,7 +187,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .on('mouseover', (event, d) => {
         d3.select(event.currentTarget).attr('stroke', '#a78bfa').attr('stroke-width', 2);
         tooltip.style('opacity', 1)
-          .html(`<strong class="text-devpulse-accent">${d.count} commits</strong> on ${d.date}`);
+          .html(`<strong class="text-white">${d.count} commits</strong> on ${d.date}`);
       })
       .on('mousemove', (event) => {
         tooltip.style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 28) + 'px');
@@ -207,7 +207,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .attr('y', 10)
       .text('Less')
       .attr('font-size', '10px')
-      .attr('fill', '#64748b');
+      .attr('fill', '#ffffff');
 
     // Draw 5 sample blocks representing intensity
     const legendData = [0, 1, 2, 3, 4];
@@ -226,7 +226,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       .attr('y', 10)
       .text('More')
       .attr('font-size', '10px')
-      .attr('fill', '#64748b');
+      .attr('fill', '#ffffff');
 
     return () => tooltip.remove();
   }, [commits]);
@@ -308,7 +308,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
         const displayHour = d.hour % 12 || 12;
         
         tooltip.style('opacity', 1)
-          .html(`<strong class="text-devpulse-accent">${d.count} commits</strong><br/>around ${displayHour} ${ampm}`);
+          .html(`<strong class="text-white">${d.count} commits</strong><br/>around ${displayHour} ${ampm}`);
       })
       .on('mousemove', (event) => {
         tooltip.style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 28) + 'px');
@@ -339,7 +339,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
       })
       .text(d => d.text)
       .attr('font-size', '12px')
-      .attr('fill', '#64748b')
+      .attr('fill', '#ffffff')
       .attr('font-weight', 'bold');
 
     return () => tooltip.remove();
@@ -442,7 +442,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
         .attr('y', -5)
         .text('Top Lang')
         .attr('font-size', '14px')
-        .attr('fill', '#64748b')
+        .attr('fill', '#ffffff')
         .attr('font-weight', 'bold');
         
       svg.append('text')
@@ -482,7 +482,7 @@ const PulseView = ({ commits, repos, hourlyData }) => {
         <div className="flex flex-col gap-4">
           <h2 className="text-xl font-bold text-white flex items-baseline gap-2">
             Activity by Hour
-            <span className="text-sm font-normal text-gray-400">(Recent Pushes)</span>
+            <span className="text-sm font-normal text-white">(Recent Pushes)</span>
           </h2>
           <div 
             ref={radialChartRef} 
@@ -505,4 +505,5 @@ const PulseView = ({ commits, repos, hourlyData }) => {
 };
 
 export default PulseView;
+
 

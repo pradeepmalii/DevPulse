@@ -100,7 +100,7 @@ const CollabsView = ({ collabs }) => {
           .attr('stroke-width', 4);
 
         tooltip.style('opacity', 1)
-          .html(`<strong class="text-devpulse-accent">${d.id}</strong><br/><span class="text-gray-400">Collaborator</span>`);
+          .html(`<strong class="text-white">${d.id}</strong><br/><span class="text-white">Collaborator</span>`);
       })
       .on('mousemove', (event) => {
         tooltip.style('left', (event.pageX + 15) + 'px').style('top', (event.pageY - 28) + 'px');
@@ -159,7 +159,7 @@ const CollabsView = ({ collabs }) => {
   return (
     <div className="w-full h-full flex flex-col gap-4 pb-10">
       <h2 className="text-xl font-bold text-white">Collaboration Network</h2>
-      <p className="text-sm text-gray-400">Scroll to zoom. Drag to pan around the galaxy of developers.</p>
+      <p className="text-sm text-white">Scroll to zoom. Drag to pan around the galaxy of developers.</p>
       
       <div 
         ref={containerRef} 
@@ -171,4 +171,5 @@ const CollabsView = ({ collabs }) => {
 };
 
 export default CollabsView;
+
 
