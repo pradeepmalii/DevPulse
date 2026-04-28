@@ -1,7 +1,6 @@
 # 🚀 DevPulse
 
-![DevPulse Banner](https://via.placeholder.com/1000x400/000000/22c55e?text=DevPulse+Matrix+Dashboard) 
-*(Note: Replace the placeholder link above with an actual screenshot of your DevPulse dashboard!)*
+![DevPulse Banner](./src/assets/devpulse_banner.png)
 
 DevPulse is an advanced, high-performance GitHub profile visualizer. Built with a sleek "Matrix Hacker" terminal aesthetic, it goes beyond the standard GitHub contribution graph by transforming raw developer data into immersive, interactive data visualizations using D3.js and the HTML5 Canvas API.
 
