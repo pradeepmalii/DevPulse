@@ -4,6 +4,7 @@ import { mockProfile, mockRepos, mockCommits, mockCollaborators } from '../../..
 import GalaxyCanvas from '../../../entities/Visualizations/ui/GalaxyCanvas.jsx';
 import PulseView from '../../../entities/Visualizations/ui/PulseView.jsx';
 import CollabsView from '../../../entities/Visualizations/ui/CollabsView.jsx';
+import Leaderboard from '../../../widgets/Leaderboard/ui/Leaderboard.jsx';
 import { fetchProfile, fetchRepos, fetchCommits, fetchCollaborators, fetchHourlyActivity } from '../../../entities/User/api/githubService.js';
 
 export default function DashboardPage() {
@@ -44,6 +45,28 @@ export default function DashboardPage() {
       setCollaborators(newCollabs);
       setHourlyData(newHourly);
       
+      // 4. Silently save to our Backend Leaderboard
+      try {
+        const totalCommits = newCommits.reduce((sum, d) => sum + d.count, 0);
+        const activeDays = newCommits.filter(d => d.count > 0).length;
+        
+        fetch('http://localhost:5000/api/leaderboard', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: newProfile.login,
+            name: newProfile.name || newProfile.login,
+            avatarUrl: newProfile.avatar_url,
+            totalCommits: totalCommits,
+            activeDays: activeDays,
+            publicRepos: newProfile.public_repos,
+            followers: newProfile.followers
+          })
+        }).catch(err => console.error("Failed to update leaderboard:", err));
+      } catch (err) {
+        console.error("Leaderboard calculation error:", err);
+      }
+      
     } catch (err) {
       console.error(err);
       setError(err.message || 'Failed to fetch user data. Check the username or your GitHub Token.');
@@ -58,6 +81,7 @@ export default function DashboardPage() {
       case 'galaxy': return <GalaxyCanvas profile={profile} repos={repos} />;
       case 'pulse': return <PulseView commits={commits} repos={repos} hourlyData={hourlyData} />;
       case 'collabs': return <CollabsView collabs={collaborators} />;
+      case 'leaderboard': return <Leaderboard />;
       default: return <GalaxyCanvas profile={profile} repos={repos} />;
     }
   };
@@ -158,6 +182,12 @@ export default function DashboardPage() {
                 className={`flex-1 py-4 text-center font-medium transition-colors ${activeTab === 'collabs' ? 'border-b-2 border-slate-300 text-white' : 'text-white hover:text-white hover:bg-[#0a0a0a]/50'}`}
               >
                 Collabs
+              </button>
+              <button 
+                onClick={() => setActiveTab('leaderboard')} 
+                className={`flex-1 py-4 text-center font-medium transition-colors ${activeTab === 'leaderboard' ? 'border-b-2 border-yellow-400 text-white' : 'text-white hover:text-white hover:bg-[#0a0a0a]/50'}`}
+              >
+                Leaderboard 🏆
               </button>
             </div>
 
