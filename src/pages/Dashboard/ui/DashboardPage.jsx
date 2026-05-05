@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import SearchBar from './components/searchBar.jsx';
-import { mockProfile, mockRepos, mockCommits, mockCollaborators } from './data/mockData.js';
-import GalaxyCanvas from './components/GalaxyCanvas.jsx';
-import PulseView from './components/PulseView.jsx';
-import CollabsView from './components/CollabsView.jsx';
-import { fetchProfile, fetchRepos, fetchCommits, fetchCollaborators, fetchHourlyActivity } from './services/githubService.js';
+import SearchBar from '../../../features/SearchUser/ui/SearchBar.jsx';
+import { mockProfile, mockRepos, mockCommits, mockCollaborators } from '../../../entities/User/model/mockData.js';
+import GalaxyCanvas from '../../../entities/Visualizations/ui/GalaxyCanvas.jsx';
+import PulseView from '../../../entities/Visualizations/ui/PulseView.jsx';
+import CollabsView from '../../../entities/Visualizations/ui/CollabsView.jsx';
+import { fetchProfile, fetchRepos, fetchCommits, fetchCollaborators, fetchHourlyActivity } from '../../../entities/User/api/githubService.js';
 
-function App() {
+export default function DashboardPage() {
   // We use state to track which tab is currently selected
   const [activeTab, setActiveTab] = useState('galaxy');
 
@@ -174,6 +174,3 @@ function App() {
     </div>
   )
 }
-
-export default App;
-
