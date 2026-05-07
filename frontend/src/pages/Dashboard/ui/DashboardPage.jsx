@@ -50,7 +50,7 @@ export default function DashboardPage() {
         const totalCommits = newCommits.reduce((sum, d) => sum + d.count, 0);
         const activeDays = newCommits.filter(d => d.count > 0).length;
         
-        fetch('http://localhost:5000/api/leaderboard', {
+        fetch(`${import.meta.env.VITE_API_URL}/api/leaderboard`), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
