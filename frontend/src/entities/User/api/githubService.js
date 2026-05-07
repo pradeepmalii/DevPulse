@@ -70,36 +70,48 @@ export const fetchRepos = async (username) => {
 //   return days;
 // };
 
+export const fetchCommits = async (_username) => {
+  return [];
+};
+
+export const fetchHourlyActivity = async (_username) => {
+  return Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
+};
+
+export const fetchCollaborators = async (_username, _repos) => {
+  return { nodes: [], links: [] };
+};
+
 // Fetch recent events to figure out what time of day the user is most active!
 // export const fetchHourlyActivity = async (username) => {
 //   try {
 //     const hours = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }));
-    
-    // GitHub limits the events API to 300 events total. 
-    // We will fetch all 3 pages (100 per page) to get the largest sample size possible!
-    for (let page = 1; page <= 3; page++) {
-      const res = await fetch(`${BASE_URL}/users/${username}/events?per_page=100&page=${page}`, { headers: getHeaders() });
-      if (!res.ok) break;
-      
-      const events = await res.json();
-      if (events.length === 0) break; // Stop if there are no more events
-      
-      events.forEach(event => {
-        if (event.type === 'PushEvent') {
-          const commitCount = event.payload.commits ? event.payload.commits.length : 1;
-          const date = new Date(event.created_at);
-          const hour = date.getHours(); 
-          hours[hour].count += commitCount;
-        }
-      });
-    }
-    
-    return hours;
-  } catch (e) {
-    console.error("Failed to fetch hourly activity", e);
-    return null;
-  }
-};
+//
+//    // GitHub limits the events API to 300 events total.
+//    // We will fetch all 3 pages (100 per page) to get the largest sample size possible!
+//    for (let page = 1; page <= 3; page++) {
+//      const res = await fetch(`${BASE_URL}/users/${username}/events?per_page=100&page=${page}`, { headers: getHeaders() });
+//      if (!res.ok) break;
+//
+//      const events = await res.json();
+//      if (events.length === 0) break; // Stop if there are no more events
+//
+//      events.forEach(event => {
+//        if (event.type === 'PushEvent') {
+//          const commitCount = event.payload.commits ? event.payload.commits.length : 1;
+//          const date = new Date(event.created_at);
+//          const hour = date.getHours();
+//          hours[hour].count += commitCount;
+//        }
+//      });
+//    }
+//
+//    return hours;
+//  } catch (e) {
+//    console.error("Failed to fetch hourly activity", e);
+//    return null;
+//  }
+// };
 
 // Fetch Collaborators: GitHub doesn't have a single "collaborators" endpoint for a user.
 // Instead, we will look at their top 3 repositories and extract all the contributors!
