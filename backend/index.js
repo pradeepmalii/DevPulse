@@ -66,6 +66,9 @@ app.post('/api/leaderboard', async (req, res) => {
 });
 
 // Start Server
+app.get("/", (req, res) => {
+    res.send("DevPulse Backend Running")
+})
 app.listen(PORT, () => {
   console.log(`🚀 DevPulse Backend running on http://localhost:${PORT}`);
 });
